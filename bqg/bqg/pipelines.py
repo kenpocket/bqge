@@ -22,7 +22,7 @@ class BqgPipeline:
 
     def process_item(self, item, spider):
         table_name = md5(item['novel_name'].encode()).hexdigest()
-        sql = '''create table {}(
+        sql = '''create table if not exists {}(
     `novel_url` text not null ,
     `novel_name` text not null ,
     `novel_title` text not null ,
@@ -32,8 +32,9 @@ class BqgPipeline:
         cursor = self.con.cursor()
         cursor.execute(sql)
         self.con.commit()
-        inst_sql = '''
-        insert into `1aca8488d14e6920b0e8a9617e05a4d8` (novel_url, novel_name, novel_title, novel_content)
+        inst_sql = '''insert into `1aca8488d14e6920b0e8a9617e05a4d8` (novel_url, novel_name, novel_title, novel_content)
 values ('{}','{}','{}','{}');
         '''.format(*item.values())
+        cursor.execute(inst_sql)
+        self.con.commit()
         return item
