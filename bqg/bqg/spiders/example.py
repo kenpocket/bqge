@@ -12,9 +12,9 @@ class ExampleSpider(scrapy.Spider):
     start_urls = ['https://www.xbiquge.so/']
 
     def start_requests(self):
-        # for url in self.start_urls:
-        #     yield Request(url=url, callback=self.parse, dont_filter=True)
-        yield Request(url='https://www.xbiquge.so/book/4/', callback=self.parse_index, dont_filter=True)
+        for url in self.start_urls:
+            yield Request(url=url, callback=self.parse, dont_filter=True)
+        # yield Request(url='https://www.xbiquge.so/book/4/', callback=self.parse_index, dont_filter=True)
 
     def parse_index(self, response: TextResponse):
         print(response)
@@ -48,7 +48,10 @@ class ExampleSpider(scrapy.Spider):
             yield Request(url=url, callback=self.parse_1, dont_filter=True)
 
     def parse_1(self, response: TextResponse):
-        print(response)
+        for div in response.xpath('//div[@class="l"]/div[@class="item"]/dl/dt'):
+            # novel_name = div.xpath('./span/text()').get().strip()
+            novel_link = div.xpath('./a/@href').get().strip()
+            yield Request(url=novel_link, callback=self.parse_index, dont_filter=True)
 
 
 if __name__ == '__main__':
